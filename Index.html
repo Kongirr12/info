@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>ระบบสารสนเทศโรงเรียนมหาชัยพิทยาคาร</title>
+  <base target="_top">
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Sarabun & Kanit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Sarabun', 'Kanit', sans-serif;
+      background-color: #f8fafc;
+    }
+    .font-title {
+      font-family: 'Kanit', sans-serif;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed top-4 right-4 z-50 transform translate-y-[-150%] transition-transform duration-300 bg-gray-900 text-white px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2.5">
+    <span id="toast-icon" class="text-green-400">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    </span>
+    <span id="toast-message" class="text-sm font-medium">ทำรายการสำเร็จ</span>
+  </div>
+
+  <!-- Navigation Bar -->
+  <nav class="bg-gradient-to-r from-red-950 via-red-900 to-red-800 text-white shadow-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Brand / Left Side -->
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('user')">
+          <div class="bg-white p-1 rounded-full shadow-md flex-shrink-0 w-10 h-10 flex items-center justify-center overflow-hidden">
+            <img src="https://lh3.googleusercontent.com/d/19aXvolxpVK5GndtRSMFP6sEdl7oa5PzN" alt="School Logo" class="w-full h-full object-cover">
+          </div>
+          <div class="flex flex-col">
+            <span class="font-title font-semibold text-sm sm:text-base md:text-lg leading-tight tracking-wide">ระบบสารสนเทศโรงเรียนมหาชัยพิทยาคาร</span>
+            <span class="text-xs text-red-200 font-light font-title">| พัฒนาโดยครูก้องนที อุ่นเจริญ</span>
+          </div>
+        </div>
+        
+        <!-- Navigation Buttons / Right Side -->
+        <div class="flex items-center space-x-2">
+          <!-- User View Buttons -->
+          <div id="logged-in-controls" class="hidden flex items-center space-x-2">
+            <button onclick="switchView('admin')" id="go-to-admin-btn" class="inline-flex items-center px-3.5 py-1.5 border border-transparent text-sm font-medium rounded-lg text-white bg-red-700 hover:bg-red-600 focus:outline-none transition duration-300 font-title">
+              แผงควบคุม
+            </button>
+            <button onclick="handleLogout()" class="inline-flex items-center px-3.5 py-1.5 border border-red-300 text-sm font-medium rounded-lg text-red-100 hover:bg-red-950 focus:outline-none transition duration-300 font-title">
+              ออกจากระบบ
+            </button>
+          </div>
+          <button id="admin-login-btn" onclick="openLoginModal()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-red-900 bg-amber-400 hover:bg-amber-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 shadow-sm transition duration-300 font-title">
+            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+            </svg>
+            Admin Login
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Banner -->
+  <div id="hero-banner" class="relative bg-gradient-to-r from-red-900 to-red-700 py-12 md:py-16 text-white text-center shadow-inner">
+    <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+    <div class="max-w-4xl mx-auto px-4 relative">
+      <h1 class="font-title text-3xl md:text-5xl font-bold tracking-tight mb-4 drop-shadow-md">
+        ระบบสารสนเทศโรงเรียนมหาชัยพิทยาคาร
+      </h1>
+      <p class="text-sm md:text-lg text-red-100 font-light max-w-2xl mx-auto">
+        ศูนย์รวมลิงก์ระบบสารสนเทศ เว็บแอปพลิเคชัน และระบบสนับสนุนการทำงานภายใน เพื่ออำนวยความสะดวกแก่บุคลากรและนักเรียน
+      </p>
+    </div>
+  </div>
+
+  <!-- User view Container -->
+  <div id="user-view" class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    <!-- Section Header & Subtitle -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 pb-5 mb-8">
+      <div>
+        <h2 class="text-2xl font-semibold text-gray-900 font-title">ระบบงานและฐานข้อมูลโรงเรียน</h2>
+        <p class="mt-1 text-sm text-gray-500">เลือกเข้าใช้งานระบบสารสนเทศที่ต้องการโดยการคลิกที่กล่องระบบ</p>
+      </div>
+      <!-- Mock Data Alert Banner -->
+      <div id="mock-badge" class="hidden mt-3 sm:mt-0 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200 animate-pulse">
+        ⚠️ กำลังใช้ข้อมูลทดสอบ (สร้างตาราง 'AppsData' ในชีตเพื่อแก้ไข)
+      </div>
+    </div>
+
+    <!-- Cards Grid Container -->
+    <div id="cards-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 min-h-[400px]">
+      <!-- Cards will be injected here -->
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="mt-10 flex items-center justify-between border-t border-gray-200 px-4 py-4 sm:px-6">
+      <div class="flex flex-1 justify-between sm:hidden">
+        <button id="prev-btn-mobile" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+          ก่อนหน้า
+        </button>
+        <button id="next-btn-mobile" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+          ถัดไป
+        </button>
+      </div>
+      <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+        <div>
+          <p class="text-sm text-gray-700">
+            แสดงผลรายการที่ <span id="start-item" class="font-medium">0</span> ถึง <span id="end-item" class="font-medium">0</span> จากทั้งหมด <span id="total-items" class="font-medium">0</span> รายการ
+          </p>
+        </div>
+        <div>
+          <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+            <button id="prev-btn" class="relative inline-flex items-center rounded-l-md px-3 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 disabled:opacity-50 disabled:cursor-not-allowed">
+              <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.83 10l3.94 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" /></svg>
+            </button>
+            <div id="page-numbers" class="inline-flex"></div>
+            <button id="next-btn" class="relative inline-flex items-center rounded-r-md px-3 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 disabled:opacity-50 disabled:cursor-not-allowed">
+              <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.17 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" /></svg>
+            </button>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin view Container (Hidden by default) -->
+  <div id="admin-view" class="hidden flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 pb-5 mb-8">
+      <div>
+        <h2 class="text-2xl font-semibold text-gray-900 font-title flex items-center">
+          <span class="w-3 h-3 bg-red-600 rounded-full mr-2.5 animate-pulse"></span>
+          แผงควบคุมและจัดการระบบ (Admin Dashboard)
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">จัดการ เพิ่ม แก้ไข หรือสลับปรับตำแหน่งการแสดงผลระบบงานสารสนเทศทั้งหมด</p>
+      </div>
+      <div class="mt-3 sm:mt-0 flex space-x-2">
+        <button onclick="switchView('user')" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none transition duration-300 font-title">
+          ดูหน้ารวม (User View)
+        </button>
+        <button onclick="openAppForm()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-red-800 hover:bg-red-900 shadow focus:outline-none transition duration-300 font-title">
+          + เพิ่มระบบงานใหม่
+        </button>
+      </div>
+    </div>
+
+    <!-- Admin Apps List Grid -->
+    <div id="admin-cards-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <!-- Admin card items will be injected here -->
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-400 py-6 border-t border-gray-800 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+      <p class="text-xs md:text-sm font-title">
+        &copy; ระบบสารสนเทศโรงเรียนมหาชัยพิทยาคาร | พัฒนาโดยครูก้องนที อุ่นเจริญ
+      </p>
+    </div>
+  </footer>
+
+  <!-- Login Modal -->
+  <div id="login-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <!-- Background overlay -->
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeLoginModal()"></div>
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+      
+      <!-- Modal Panel -->
+      <div class="relative inline-block align-middle bg-white rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full">
+        <div class="bg-gradient-to-r from-red-950 to-red-800 px-6 py-4 text-white flex items-center justify-between">
+          <h3 class="text-lg font-semibold font-title">เข้าสู่ระบบผู้ดูแลระบบ (Admin)</h3>
+          <button onclick="closeLoginModal()" class="text-red-200 hover:text-white focus:outline-none">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+        <form onsubmit="handleLoginSubmit(event)" class="px-6 py-6 space-y-4 bg-white">
+          <div id="login-error" class="hidden p-3 bg-red-50 text-red-700 text-xs rounded-lg border border-red-200"></div>
+          
+          <div>
+            <label for="username" class="block text-xs font-semibold text-gray-700 font-title uppercase mb-1">Username</label>
+            <input type="text" id="username" required class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-red-900 focus:border-red-900 text-sm">
+          </div>
+          <div>
+            <label for="password" class="block text-xs font-semibold text-gray-700 font-title uppercase mb-1">Password</label>
+            <input type="password" id="password" required class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-red-900 focus:border-red-900 text-sm">
+          </div>
+          <div class="pt-2">
+            <button type="submit" id="login-submit-btn" class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-red-900 hover:bg-red-950 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-900 transition duration-300 font-title">
+              ยืนยันการเข้าสู่ระบบ
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- App Form Modal (Add / Edit App) -->
+  <div id="app-form-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeAppForm()"></div>
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+      
+      <div class="relative inline-block align-middle bg-white rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+        <div class="bg-gradient-to-r from-red-950 to-red-800 px-6 py-4 text-white flex items-center justify-between">
+          <h3 id="form-title" class="text-lg font-semibold font-title">เพิ่มระบบงานสารสนเทศ</h3>
+          <button onclick="closeAppForm()" class="text-red-200 hover:text-white focus:outline-none">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+        
+        <form onsubmit="handleFormSubmit(event)" class="px-6 py-6 space-y-4 bg-white">
+          <input type="hidden" id="form-app-id">
+          
+          <div>
+            <label for="form-app-name" class="block text-xs font-semibold text-gray-700 font-title uppercase mb-1">ชื่อระบบงาน (AppName)</label>
+            <input type="text" id="form-app-name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-red-900 focus:border-red-900 text-sm">
+          </div>
+          
+          <div>
+            <label for="form-app-desc" class="block text-xs font-semibold text-gray-700 font-title uppercase mb-1">คำอธิบายรายละเอียด (Description)</label>
+            <textarea id="form-app-desc" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-red-900 focus:border-red-900 text-sm"></textarea>
+          </div>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="sm:col-span-2">
+              <label for="form-app-url" class="block text-xs font-semibold text-gray-700 font-title uppercase mb-1">ลิงก์ระบบงาน (AppURL)</label>
+              <input type="url" id="form-app-url" required placeholder="https://example.com" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-red-900 focus:border-red-900 text-sm">
+            </div>
+            <div>
+              <label for="form-app-order" class="block text-xs font-semibold text-gray-700 font-title uppercase mb-1">ลำดับแสดงผล (SortOrder)</label>
+              <input type="number" step="0.01" id="form-app-order" placeholder="เลื่อนอัตโนมัติ" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-red-900 focus:border-red-900 text-sm">
+            </div>
+          </div>
+
+          <!-- File Upload for Card Image -->
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 font-title uppercase mb-1">อัปโหลดรูปภาพประกอบการ์ด (Card Image)</label>
+            <div class="mt-1 flex items-center space-x-4 border border-dashed border-gray-300 rounded-lg p-3">
+              <div class="flex-shrink-0 w-24 h-16 bg-gray-100 rounded-md overflow-hidden border border-gray-200">
+                <img id="form-image-preview" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=60" alt="Preview" class="w-full h-full object-cover">
+              </div>
+              <div class="flex-grow">
+                <input type="file" id="form-app-file" accept="image/*" onchange="handleFileSelect(event)" class="text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-red-50 file:text-red-900 hover:file:bg-red-100 cursor-pointer">
+                <p class="text-[10px] text-gray-400 mt-1">ไฟล์ภาพ JPG, PNG, GIF (ระบบจะอัปโหลดไปยัง Google Drive ของคุณโดยอัตโนมัติ)</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="pt-4 border-t border-gray-100 flex justify-end space-x-2">
+            <button type="button" onclick="closeAppForm()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-750 hover:bg-gray-50 focus:outline-none font-title">
+              ยกเลิก
+            </button>
+            <button type="submit" id="form-submit-btn" class="px-5 py-2 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-red-900 hover:bg-red-950 focus:outline-none transition duration-300 font-title flex items-center">
+              <span id="submit-btn-text">บันทึกข้อมูล</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skeletons Loader Template -->
+  <template id="skeleton-template">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden animate-pulse flex flex-col justify-between h-[300px]">
+      <div class="w-full h-40 bg-gray-200"></div>
+      <div class="p-5 flex-grow">
+        <div class="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
+        <div class="h-3 bg-gray-200 rounded w-full mb-2"></div>
+        <div class="h-3 bg-gray-200 rounded w-5/6"></div>
+      </div>
+      <div class="p-4 bg-gray-50 border-t border-gray-100">
+        <div class="h-8 bg-gray-200 rounded w-full"></div>
+      </div>
+    </div>
+  </template>
+
+  <!-- Script logic -->
+  <script>
+    // ==========================================
+    // คอนฟิก URL ของ Google Apps Script Web App ที่ได้จากขั้นตอนการ Deploy
+    // วางลิงก์ URL ของคุณแทนที่ตัวแปรด้านล่างนี้ได้เลยครับ เพื่อให้หน้าเว็บยิง API เข้า Google Apps Script จริง
+    // ==========================================
+    var GAS_API_URL = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec";
+
+    var currentPage = 1;
+    var pageSize = 16;
+    var totalPages = 1;
+    var viewMode = 'user'; // 'user' or 'admin'
+    var cachedAppsResponse = null;
+
+    // File Upload Temporary variables
+    var selectedFileBase64 = null;
+    var selectedFileName = "";
+
+    document.addEventListener("DOMContentLoaded", function() {
+      if (sessionStorage.getItem('adminToken')) {
+        showLoggedInControls();
+      }
+      
+      // ดึง URL แผงชีตสำหรับ Admin
+      callGAS('getAppSheetUrl', 'GET', null, function(res) {
+        var adminBtn = document.getElementById("admin-btn");
+        if (adminBtn) {
+          adminBtn.href = res.url || "https://docs.google.com/spreadsheets";
+        }
+      });
+
+      loadPage(currentPage);
+      setupEventListeners();
+    });
+
+    function setupEventListeners() {
+      document.getElementById("prev-btn").addEventListener("click", function() {
+        if (currentPage > 1) {
+          currentPage--;
+          loadPage(currentPage);
+        }
+      });
+      document.getElementById("next-btn").addEventListener("click", function() {
+        if (currentPage < totalPages) {
+          currentPage++;
+          loadPage(currentPage);
+        }
+      });
+      document.getElementById("prev-btn-mobile").addEventListener("click", function() {
+        if (currentPage > 1) {
+          currentPage--;
+          loadPage(currentPage);
+        }
+      });
+      document.getElementById("next-btn-mobile").addEventListener("click", function() {
+        if (currentPage < totalPages) {
+          currentPage++;
+          loadPage(currentPage);
+        }
+      });
+    }
+
+    // ฟังก์ชันตรวจสอบสิทธิ์สภาพแวดล้อมว่ารันอยู่บน Google Apps Script หรือไม่
+    function isRunningInGAS() {
+      return typeof google !== 'undefined' && 
+             typeof google.script !== 'undefined' && 
+             typeof google.script.run !== 'undefined';
+    }
+
+    // ฟังก์ชันตัวกลางสำหรับดึงและส่งข้อมูล
+    // หากรันใน Google Apps Script Web App จะเชื่อมต่อโดยตรงผ่าน google.script.run เพื่อเลี่ยงบล็อก CORS
+    // หากรันภายนอก (เช่น GitHub Pages) จะเชื่อมโยงผ่าน Fetch API ไปยังตัวแปร GAS_API_URL
+    function callGAS(action, method, data, onSuccess, onFailure) {
+      // 1. ตรวจสอบและใช้งาน Native google.script.run เมื่อทำงานใน Google Apps Script
+      if (isRunningInGAS()) {
+        var runner = google.script.run
+          .withSuccessHandler(function(result) {
+            if (onSuccess) onSuccess(result);
+          })
+          .withFailureHandler(function(err) {
+            if (onFailure) onFailure(err);
+            else console.error("GAS error:", err);
+          });
+          
+        if (action === 'getAppsData') {
+          runner.getAppsData(data ? data.page : 1, data ? data.pageSize : 999);
+        } else if (action === 'getAppSheetUrl') {
+          runner.getAppSheetUrl();
+        } else if (action === 'verifyLogin') {
+          runner.verifyLogin(data.username, data.password);
+        } else if (action === 'uploadImageToDrive') {
+          runner.uploadImageToDrive(data.base64Data, data.fileName);
+        } else if (action === 'saveApp') {
+          runner.saveApp(data.appData);
+        } else if (action === 'deleteApp') {
+          runner.deleteApp(data.appId);
+        } else if (action === 'changeAppOrder') {
+          runner.changeAppOrder(data.appId, data.direction);
+        } else {
+          if (onFailure) onFailure(new Error("ไม่พบคำสั่งเรียกใช้ในโหมด GAS"));
+        }
+        return;
+      }
+      
+      // 2. ตรวจสอบการใช้งานโหมดจำลองเมื่อรันที่เครื่องโลคอล
+      var isLocal = !GAS_API_URL || GAS_API_URL.includes("YOUR_DEPLOYMENT_ID") || GAS_API_URL === "";
+      if (isLocal) {
+        console.warn("Running in local simulation mode for action: " + action);
+        simulateLocalGAS(action, data, onSuccess, onFailure);
+        return;
+      }
+      
+      // 3. ใช้งานผ่าน Fetch API สำหรับโฮสภายนอก (เช่น GitHub Pages)
+      var url = GAS_API_URL;
+      var options = {};
+      
+      if (method === 'GET') {
+        var queryParams = [];
+        queryParams.push("action=" + action);
+        if (data) {
+          for (var key in data) {
+            queryParams.push(key + "=" + encodeURIComponent(data[key]));
+          }
+        }
+        url += (url.includes("?") ? "&" : "?") + queryParams.join("&");
+        options = {
+          method: 'GET'
+        };
+      } else {
+        var payload = {
+          action: action
+        };
+        if (data) {
+          for (var key in data) {
+            payload[key] = data[key];
+          }
+        }
+        
+        // ไม่ระบุ Content-Type เพื่อให้ระบบมองเป็น Simple Request หลีกเลี่ยง CORS preflight OPTIONS request
+        options = {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        };
+      }
+      
+      fetch(url, options)
+        .then(function(res) {
+          if (!res.ok) throw new Error("HTTP error " + res.status);
+          return res.json();
+        })
+        .then(function(result) {
+          if (onSuccess) onSuccess(result);
+        })
+        .catch(function(err) {
+          if (onFailure) onFailure(err);
+          else {
+            console.error("API Call error:", err);
+            showToast("การเชื่อมต่อเซิร์ฟเวอร์ขัดข้อง: " + err.message, "info");
+          }
+        });
+    }
+
+    // Toggle views
+    function switchView(mode) {
+      if (mode === 'admin' && !sessionStorage.getItem('adminToken')) {
+        openLoginModal();
+        return;
+      }
+
+      viewMode = mode;
+      
+      var userView = document.getElementById("user-view");
+      var adminView = document.getElementById("admin-view");
+      var heroBanner = document.getElementById("hero-banner");
+      
+      if (viewMode === 'admin') {
+        userView.classList.add("hidden");
+        adminView.classList.remove("hidden");
+        heroBanner.classList.add("hidden");
+        displayAdminDashboard();
+      } else {
+        adminView.classList.add("hidden");
+        userView.classList.remove("hidden");
+        heroBanner.classList.remove("hidden");
+        if (cachedAppsResponse) {
+          displayApps(cachedAppsResponse);
+        } else {
+          loadPage(currentPage);
+        }
+      }
+    }
+
+    // Load data from script server using API
+    function loadPage(page) {
+      showLoadingSkeletons();
+      
+      callGAS('getAppsData', 'GET', { page: page, pageSize: 999 }, function(response) {
+        cachedAppsResponse = response;
+        if (viewMode === 'admin') {
+          displayAdminDashboard();
+        } else {
+          displayApps(response);
+        }
+      }, function(error) {
+        displayError(error.message);
+      });
+    }
+
+    function showLoadingSkeletons() {
+      var container = document.getElementById("cards-container");
+      var skeletonTemplate = document.getElementById("skeleton-template");
+      container.innerHTML = "";
+      
+      for (var i = 0; i < pageSize; i++) {
+        var clone = skeletonTemplate.content.cloneNode(true);
+        container.appendChild(clone);
+      }
+    }
+
+    // Render User view cards grid (expanded images)
+    function displayApps(response) {
+      var container = document.getElementById("cards-container");
+      container.innerHTML = "";
+
+      var mockBadge = document.getElementById("mock-badge");
+      if (response.isMock) {
+        mockBadge.classList.remove("hidden");
+      } else {
+        mockBadge.classList.add("hidden");
+      }
+
+      var apps = response.apps || [];
+      var totalItems = apps.length;
+      totalPages = Math.ceil(totalItems / pageSize) || 1;
+      
+      var startIndex = (currentPage - 1) * pageSize;
+      var endIndex = Math.min(startIndex + pageSize, totalItems);
+      var pagedApps = apps.slice(startIndex, endIndex);
+
+      if (pagedApps.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full flex flex-col items-center justify-center py-12 text-gray-500">
+            <svg class="w-16 h-16 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <p class="font-title text-lg font-medium">ไม่พบข้อมูลระบบสารสนเทศ</p>
+            <p class="text-xs text-gray-400 mt-1">กรุณาเพิ่มข้อมูลแอปพลิเคชันโดยการเข้าสู่ระบบผู้ดูแลระบบ (Admin)</p>
+          </div>
+        `;
+        updatePaginationInfo(0, 0, 0);
+        return;
+      }
+
+      pagedApps.forEach(function(app) {
+        var card = document.createElement("div");
+        card.className = "group bg-white rounded-xl shadow-sm border border-gray-150 hover:shadow-lg hover:border-red-200 transform hover:-translate-y-1 transition duration-300 flex flex-col justify-between overflow-hidden h-[340px] cursor-pointer";
+        
+        card.addEventListener("click", function() {
+          if (!app.appUrl || app.appUrl === '#') {
+            showToast("ไม่พบคอนฟิก URL สำหรับระบบนี้", "info");
+            return;
+          }
+          var url = app.appUrl.trim();
+          if (!/^https?:\/\//i.test(url)) {
+            url = 'https://' + url;
+          }
+          window.open(url, '_blank');
+        });
+
+        card.innerHTML = `
+          <!-- Expanded Card Image -->
+          <div class="w-full h-40 bg-gray-100 overflow-hidden relative flex-shrink-0">
+            <img src="${app.iconUrl}" alt="${app.name}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=60'">
+            <span class="absolute top-2 right-2 text-xs font-semibold px-2.5 py-0.5 rounded bg-red-950/80 backdrop-blur-sm text-white uppercase font-title">ID: ${app.id}</span>
+          </div>
+          <div class="p-5 flex-grow flex flex-col justify-between">
+            <div>
+              <h3 class="font-title text-sm sm:text-base font-semibold text-gray-800 mb-1.5 line-clamp-1 group-hover:text-red-900 transition duration-200">${app.name}</h3>
+              <p class="text-xs text-gray-500 leading-relaxed line-clamp-3">${app.description || 'ไม่มีคำอธิบายเพิ่มเติม'}</p>
+            </div>
+          </div>
+          <div class="bg-gray-50 px-5 py-3 border-t border-gray-100 flex justify-center items-center text-xs font-semibold text-red-900 group-hover:bg-red-900 group-hover:text-white transition duration-300 font-title">
+            เปิดใช้งานระบบ
+            <svg class="ml-1.5 h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      var showStart = totalItems === 0 ? 0 : startIndex + 1;
+      updatePaginationInfo(showStart, endIndex, totalItems);
+    }
+
+    // Render Admin Management view
+    function displayAdminDashboard() {
+      var container = document.getElementById("admin-cards-container");
+      container.innerHTML = "";
+
+      var apps = (cachedAppsResponse && cachedAppsResponse.apps) ? cachedAppsResponse.apps : [];
+
+      if (apps.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full flex flex-col items-center justify-center py-12 text-gray-500 bg-white rounded-xl border border-dashed border-gray-300">
+            <svg class="w-16 h-16 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <p class="font-title text-lg font-medium">ยังไม่มีระบบงานสารสนเทศ</p>
+            <p class="text-xs text-gray-400 mt-1">กดปุ่ม "เพิ่มระบบงานใหม่" ด้านบนเพื่อเริ่มระบบแรก</p>
+          </div>
+        `;
+        return;
+      }
+
+      apps.forEach(function(app) {
+        var card = document.createElement("div");
+        card.className = "bg-white rounded-xl shadow-sm border border-gray-150 flex flex-col justify-between overflow-hidden h-[360px]";
+        
+        card.innerHTML = `
+          <!-- Image and ID -->
+          <div class="w-full h-40 bg-gray-100 overflow-hidden relative flex-shrink-0">
+            <img src="${app.iconUrl}" alt="${app.name}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=60'">
+            <span class="absolute top-2 right-2 text-xs font-semibold px-2.5 py-0.5 rounded bg-gray-900/80 backdrop-blur-sm text-white uppercase font-title">ID: ${app.id}</span>
+            <span class="absolute bottom-2 left-2 text-[10px] font-semibold px-2 py-0.5 rounded bg-gray-900/90 text-amber-300 font-title">ลำดับ: ${app.sortOrder || app.id}</span>
+          </div>
+          
+          <div class="p-5 flex-grow flex flex-col justify-between">
+            <div>
+              <h3 class="font-title text-sm sm:text-base font-semibold text-gray-800 mb-1.5 line-clamp-1">${app.name}</h3>
+              <p class="text-xs text-gray-500 leading-relaxed line-clamp-2">${app.description || 'ไม่มีคำอธิบายเพิ่มเติม'}</p>
+            </div>
+          </div>
+          
+          <!-- Actions & Swap Position Buttons -->
+          <div class="bg-gray-50 px-4 py-3 border-t border-gray-100 flex items-center justify-between">
+            <div class="flex space-x-1">
+              <button onclick="handleMoveApp(${app.id}, 'up')" title="ย้ายขึ้น" class="p-1 border border-gray-300 rounded bg-white hover:bg-gray-100 text-gray-700 focus:outline-none transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+              </button>
+              <button onclick="handleMoveApp(${app.id}, 'down')" title="ย้ายลง" class="p-1 border border-gray-300 rounded bg-white hover:bg-gray-100 text-gray-700 focus:outline-none transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              </button>
+            </div>
+            
+            <div class="flex space-x-1.5">
+              <button onclick="openAppForm(${app.id})" class="px-2.5 py-1 border border-gray-300 rounded-lg text-xs font-semibold text-gray-750 bg-white hover:bg-gray-50 focus:outline-none transition font-title">
+                แก้ไข
+              </button>
+              <button onclick="handleDeleteApp(${app.id})" class="px-2.5 py-1 border border-red-200 rounded-lg text-xs font-semibold text-red-700 bg-white hover:bg-red-50 focus:outline-none transition font-title">
+                ลบ
+              </button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function displayError(message) {
+      var container = document.getElementById("cards-container");
+      container.innerHTML = `
+        <div class="col-span-full flex flex-col items-center justify-center py-12 text-red-700 bg-red-50 rounded-xl border border-red-200">
+          <svg class="w-16 h-16 text-red-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <p class="font-title text-lg font-medium">เกิดข้อผิดพลาดในการเชื่อมต่อข้อมูล</p>
+          <p class="text-xs text-red-500 mt-1">${message}</p>
+        </div>
+      `;
+      updatePaginationInfo(0, 0, 0);
+    }
+
+    function updatePaginationInfo(start, end, total) {
+      document.getElementById("start-item").innerText = start;
+      document.getElementById("end-item").innerText = end;
+      document.getElementById("total-items").innerText = total;
+
+      document.getElementById("prev-btn").disabled = (currentPage === 1);
+      document.getElementById("next-btn").disabled = (currentPage === totalPages || totalPages === 0);
+      document.getElementById("prev-btn-mobile").disabled = (currentPage === 1);
+      document.getElementById("next-btn-mobile").disabled = (currentPage === totalPages || totalPages === 0);
+
+      var pageNumbersContainer = document.getElementById("page-numbers");
+      pageNumbersContainer.innerHTML = "";
+
+      for (var i = 1; i <= totalPages; i++) {
+        var btn = document.createElement("button");
+        btn.innerText = i;
+        if (i === currentPage) {
+          btn.className = "relative z-10 inline-flex items-center bg-red-900 px-4 py-2 text-sm font-semibold text-white focus:z-20";
+        } else {
+          btn.className = "relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20";
+        }
+        
+        (function(idx) {
+          btn.addEventListener("click", function() {
+            currentPage = idx;
+            loadPage(currentPage);
+          });
+        })(i);
+
+        pageNumbersContainer.appendChild(btn);
+      }
+    }
+
+    // Modal control: Login
+    function openLoginModal() {
+      document.getElementById("login-modal").classList.remove("hidden");
+      document.getElementById("login-error").classList.add("hidden");
+      document.getElementById("username").value = "";
+      document.getElementById("password").value = "";
+    }
+
+    function closeLoginModal() {
+      document.getElementById("login-modal").classList.add("hidden");
+    }
+
+    function handleLoginSubmit(e) {
+      e.preventDefault();
+      var user = document.getElementById("username").value;
+      var pass = document.getElementById("password").value;
+      var loginBtn = document.getElementById("login-submit-btn");
+      
+      loginBtn.disabled = true;
+      loginBtn.innerText = "กำลังตรวจสอบสิทธิ์...";
+
+      callGAS('verifyLogin', 'POST', { username: user, password: pass }, function(res) {
+        loginBtn.disabled = false;
+        loginBtn.innerText = "ยืนยันการเข้าสู่ระบบ";
+        
+        if (res.success) {
+          sessionStorage.setItem('adminToken', res.token);
+          showLoggedInControls();
+          closeLoginModal();
+          showToast("เข้าสู่ระบบสำเร็จ", "success");
+          switchView('admin');
+        } else {
+          var errorDiv = document.getElementById("login-error");
+          errorDiv.innerText = res.message;
+          errorDiv.classList.remove("hidden");
+        }
+      }, function(err) {
+        loginBtn.disabled = false;
+        loginBtn.innerText = "ยืนยันการเข้าสู่ระบบ";
+        var errorDiv = document.getElementById("login-error");
+        errorDiv.innerText = err.message;
+        errorDiv.classList.remove("hidden");
+      });
+    }
+
+    function showLoggedInControls() {
+      document.getElementById("admin-login-btn").classList.add("hidden");
+      document.getElementById("logged-in-controls").classList.remove("hidden");
+    }
+
+    function handleLogout() {
+      sessionStorage.removeItem('adminToken');
+      document.getElementById("logged-in-controls").classList.add("hidden");
+      document.getElementById("admin-login-btn").classList.remove("hidden");
+      showToast("ออกจากระบบแล้ว", "info");
+      switchView('user');
+    }
+
+    // Modal control: App Form (Add / Edit)
+    function openAppForm(appId) {
+      document.getElementById("app-form-modal").classList.remove("hidden");
+      document.getElementById("form-app-file").value = "";
+      selectedFileBase64 = null;
+      selectedFileName = "";
+
+      var previewImg = document.getElementById("form-image-preview");
+      var titleText = document.getElementById("form-title");
+      var submitText = document.getElementById("submit-btn-text");
+
+      if (appId) {
+        titleText.innerText = "แก้ไขข้อมูลระบบงาน";
+        submitText.innerText = "บันทึกการเปลี่ยนแปลง";
+        document.getElementById("form-app-id").value = appId;
+
+        var app = cachedAppsResponse.apps.find(function(a) { return a.id === appId; });
+        if (app) {
+          document.getElementById("form-app-name").value = app.name;
+          document.getElementById("form-app-desc").value = app.description;
+          document.getElementById("form-app-url").value = app.appUrl;
+          document.getElementById("form-app-order").value = app.sortOrder !== undefined ? app.sortOrder : "";
+          previewImg.src = app.iconUrl;
+        }
+      } else {
+        titleText.innerText = "เพิ่มระบบงานสารสนเทศ";
+        submitText.innerText = "บันทึกข้อมูล";
+        document.getElementById("form-app-id").value = "";
+        document.getElementById("form-app-name").value = "";
+        document.getElementById("form-app-desc").value = "";
+        document.getElementById("form-app-url").value = "";
+        document.getElementById("form-app-order").value = "";
+        previewImg.src = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=60";
+      }
+    }
+
+    function closeAppForm() {
+      document.getElementById("app-form-modal").classList.add("hidden");
+    }
+
+    // Handle Image upload selection
+    function handleFileSelect(e) {
+      var file = e.target.files[0];
+      if (!file) return;
+
+      selectedFileName = file.name;
+      var reader = new FileReader();
+      reader.onload = function(evt) {
+        selectedFileBase64 = evt.target.result;
+        document.getElementById("form-image-preview").src = selectedFileBase64;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Form submission processing
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      var saveBtn = document.getElementById("form-submit-btn");
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = `
+        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        กำลังบันทึกข้อมูล...
+      `;
+
+      var id = document.getElementById("form-app-id").value;
+      var name = document.getElementById("form-app-name").value;
+      var desc = document.getElementById("form-app-desc").value;
+      var url = document.getElementById("form-app-url").value;
+      var order = document.getElementById("form-app-order").value;
+      var currentPreviewSrc = document.getElementById("form-image-preview").src;
+
+      if (selectedFileBase64) {
+        callGAS('uploadImageToDrive', 'POST', { base64Data: selectedFileBase64, fileName: selectedFileName }, function(res) {
+          saveAppMetadata(id, name, desc, res.url, url, order);
+        }, function(err) {
+          saveBtn.disabled = false;
+          saveBtn.innerText = "บันทึกข้อมูล";
+          alert("การอัปโหลดไฟล์รูปล้มเหลว: " + err.message);
+        });
+      } else {
+        saveAppMetadata(id, name, desc, currentPreviewSrc, url, order);
+      }
+    }
+
+    // Save final App Metadata row via API
+    function saveAppMetadata(id, name, desc, iconUrl, appUrl, sortOrder) {
+      var appData = {
+        id: id ? parseInt(id) : null,
+        name: name,
+        description: desc,
+        iconUrl: iconUrl,
+        appUrl: appUrl,
+        sortOrder: sortOrder ? parseFloat(sortOrder) : null
+      };
+
+      callGAS('saveApp', 'POST', { appData: appData }, function(res) {
+        resetSubmitBtn();
+        if (res.success) {
+          closeAppForm();
+          showToast("บันทึกข้อมูลสำเร็จ", "success");
+          loadPage(currentPage);
+        } else {
+          alert("บันทึกข้อมูลล้มเหลว: " + res.message);
+        }
+      }, function(err) {
+        resetSubmitBtn();
+        alert("เกิดข้อผิดพลาด: " + err.message);
+      });
+    }
+
+    function resetSubmitBtn() {
+      var saveBtn = document.getElementById("form-submit-btn");
+      saveBtn.disabled = false;
+      var titleText = document.getElementById("form-title").innerText;
+      saveBtn.innerText = titleText === "แก้ไขข้อมูลระบบงาน" ? "บันทึกการเปลี่ยนแปลง" : "บันทึกข้อมูล";
+    }
+
+    // Move App Position Up/Down via API
+    function handleMoveApp(appId, direction) {
+      showToast("กำลังย้ายตำแหน่ง...", "info");
+      
+      callGAS('changeAppOrder', 'POST', { appId: appId, direction: direction }, function(res) {
+        if (res.success) {
+          showToast("ปรับเปลี่ยนตำแหน่งเรียบร้อย", "success");
+          loadPage(currentPage);
+        } else {
+          showToast(res.message, "info");
+        }
+      }, function(err) {
+        alert("เกิดข้อผิดพลาดในการย้ายตำแหน่ง: " + err.message);
+      });
+    }
+
+    // Delete app via API
+    function handleDeleteApp(appId) {
+      if (!confirm("คุณต้องการลบระบบงานสารสนเทศนี้ใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้")) {
+        return;
+      }
+
+      callGAS('deleteApp', 'POST', { appId: appId }, function(res) {
+        if (res.success) {
+          showToast("ลบข้อมูลเรียบร้อยแล้ว", "success");
+          loadPage(currentPage);
+        } else {
+          alert("ลบข้อมูลไม่สำเร็จ: " + res.message);
+        }
+      }, function(err) {
+        alert("เกิดข้อผิดพลาด: " + err.message);
+      });
+    }
+
+    // Toast Control
+    function showToast(message, type) {
+      var toast = document.getElementById("toast");
+      var toastMessage = document.getElementById("toast-message");
+      var toastIcon = document.getElementById("toast-icon");
+      
+      toastMessage.innerText = message;
+      
+      if (type === 'success') {
+        toastIcon.innerHTML = `<svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+      } else if (type === 'info') {
+        toastIcon.innerHTML = `<svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+      }
+
+      toast.classList.remove("translate-y-[-150%]");
+      
+      setTimeout(function() {
+        toast.classList.add("translate-y-[-150%]");
+      }, 3000);
+    }
+
+    // ==========================================
+    // Local mock data logic for offline/simulation
+    // ==========================================
+    function simulateLocalGAS(action, data, onSuccess, onFailure) {
+      setTimeout(function() {
+        try {
+          if (action === 'getAppsData') {
+            var response = getLocalMockData(data ? data.page : 1, data ? data.pageSize : 16);
+            if (sessionStorage.getItem('localMockApps')) {
+              var localApps = JSON.parse(sessionStorage.getItem('localMockApps'));
+              response.apps = localApps;
+              response.totalItems = localApps.length;
+              response.totalPages = Math.ceil(localApps.length / (data ? data.pageSize : 16));
+              var start = ((data ? data.page : 1) - 1) * (data ? data.pageSize : 16);
+              response.apps = localApps.slice(start, start + (data ? data.pageSize : 16));
+            } else {
+              var defaultMock = getLocalMockData(1, 999).apps;
+              sessionStorage.setItem('localMockApps', JSON.stringify(defaultMock));
+              response = getLocalMockData(data ? data.page : 1, data ? data.pageSize : 16);
+            }
+            onSuccess(response);
+          } else if (action === 'getAppSheetUrl') {
+            onSuccess({ url: "https://docs.google.com/spreadsheets" });
+          } else if (action === 'verifyLogin') {
+            if (data.username === 'admin' && data.password === 'admin1234') {
+              onSuccess({ success: true, token: 'localMockToken' });
+            } else {
+              onSuccess({ success: false, message: "รหัสผ่านไม่ถูกต้อง (ค่าเริ่มต้นคือ admin / admin1234)" });
+            }
+          } else if (action === 'uploadImageToDrive') {
+            onSuccess({ url: data.base64Data }); 
+          } else if (action === 'saveApp') {
+            var apps = JSON.parse(sessionStorage.getItem('localMockApps') || '[]');
+            var appData = data.appData;
+            
+            var appUrl = appData.appUrl || '#';
+            if (appUrl !== '#' && !/^https?:\/\//i.test(appUrl.trim())) {
+              appUrl = 'https://' + appUrl.trim();
+            }
+
+            if (appData.id) {
+              var app = apps.find(function(a) { return a.id == appData.id; });
+              if (app) {
+                app.name = appData.name;
+                app.description = appData.description;
+                app.iconUrl = appData.iconUrl;
+                app.appUrl = appUrl;
+                if (appData.sortOrder !== null) app.sortOrder = parseFloat(appData.sortOrder);
+              }
+            } else {
+              var nextId = apps.length > 0 ? Math.max.apply(null, apps.map(function(a){return a.id;})) + 1 : 1;
+              var nextOrder = appData.sortOrder !== null ? parseFloat(appData.sortOrder) : (apps.length > 0 ? Math.max.apply(null, apps.map(function(a){return a.sortOrder || a.id;})) + 1 : 1);
+              apps.push({
+                id: nextId,
+                name: appData.name,
+                description: appData.description,
+                iconUrl: appData.iconUrl,
+                appUrl: appUrl,
+                sortOrder: nextOrder
+              });
+            }
+            apps.sort(function(a,b){ return (a.sortOrder || a.id) - (b.sortOrder || b.id); });
+            sessionStorage.setItem('localMockApps', JSON.stringify(apps));
+            onSuccess({ success: true });
+          } else if (action === 'deleteApp') {
+            var apps = JSON.parse(sessionStorage.getItem('localMockApps') || '[]');
+            apps = apps.filter(function(a) { return a.id != data.appId; });
+            sessionStorage.setItem('localMockApps', JSON.stringify(apps));
+            onSuccess({ success: true });
+          } else if (action === 'changeAppOrder') {
+            var apps = JSON.parse(sessionStorage.getItem('localMockApps') || '[]');
+            var idx = apps.findIndex(function(a) { return a.id == data.appId; });
+            if (idx !== -1) {
+              var swapIdx = -1;
+              if (data.direction === 'up' && idx > 0) swapIdx = idx - 1;
+              else if (data.direction === 'down' && idx < apps.length - 1) swapIdx = idx + 1;
+              
+              if (swapIdx !== -1) {
+                var temp = apps[idx].sortOrder;
+                apps[idx].sortOrder = apps[swapIdx].sortOrder;
+                apps[swapIdx].sortOrder = temp;
+                apps.sort(function(a,b){ return a.sortOrder - b.sortOrder; });
+                sessionStorage.setItem('localMockApps', JSON.stringify(apps));
+                onSuccess({ success: true });
+              } else {
+                onSuccess({ success: false, message: "ถึงขอบเขตสิ้นสุดตำแหน่งแล้ว" });
+              }
+            }
+          }
+        } catch (err) {
+          onFailure(err);
+        }
+      }, 300);
+    }
+
+    function getLocalMockData(page, pageSize) {
+      var localMockApps = [
+        {
+          id: 1,
+          name: "ระบบรับสมัครนักเรียนออนไลน์",
+          description: "ระบบบริหารจัดการข้อมูลการรับสมัครนักเรียนใหม่ทางออนไลน์ของโรงเรียนมหาชัยพิทยาคาร",
+          iconUrl: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&auto=format&fit=crop&q=60",
+          appUrl: "https://docs.google.com/spreadsheets",
+          sortOrder: 1
+        },
+        {
+          id: 2,
+          name: "ระบบบริหารจัดการเกรดผลเรียน (SGS)",
+          description: "ระบบกรอกเกรดและส่งผลการเรียนสำหรับคุณครูและนักเรียน ติดตามผลการเรียนรายวิชา",
+          iconUrl: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&auto=format&fit=crop&q=60",
+          appUrl: "https://docs.google.com/spreadsheets",
+          sortOrder: 2
+        },
+        {
+          id: 3,
+          name: "ระบบลงทะเบียนกิจกรรมลดเวลาเรียน",
+          description: "ระบบลงทะเบียนเลือกกิจกรรมชุมนุมและกิจกรรมลดเวลาเรียนเพิ่มเวลารู้สำหรับนักเรียน",
+          iconUrl: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=400&auto=format&fit=crop&q=60",
+          appUrl: "https://docs.google.com/spreadsheets",
+          sortOrder: 3
+        },
+        {
+          id: 4,
+          name: "ระบบสารสนเทศงานปกครอง",
+          description: "ระบบบันทึกคะแนนความประพฤติ คะแนนวินัย และการมาสายของนักเรียนรายบุคคล",
+          iconUrl: "https://images.unsplash.com/photo-1571260899304-425eee4c7efc?w=400&auto=format&fit=crop&q=60",
+          appUrl: "https://docs.google.com/spreadsheets",
+          sortOrder: 4
+        },
+        {
+          id: 5,
+          name: "ระบบบริการงานห้องสมุดดิจิทัล",
+          description: "ระบบสืบค้นหนังสือ ยืม-คืน และทรัพยากรการเรียนรู้ในรูปแบบ E-Book ของโรงเรียน",
+          iconUrl: "https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=400&auto=format&fit=crop&q=60",
+          appUrl: "https://docs.google.com/spreadsheets",
+          sortOrder: 5
+        },
+        {
+          id: 6,
+          name: "ระบบเช็คชื่อนักเรียนเข้าเรียนรายคาบ",
+          description: "ระบบเช็คชื่อการเข้าแถวและการเช็คชื่อเข้าชั้นเรียนแบบเรียลไทม์ผ่านอุปกรณ์พกพา",
+          iconUrl: "https://images.unsplash.com/photo-1580655653885-65763b2597d0?w=400&auto=format&fit=crop&q=60",
+          appUrl: "https://docs.google.com/spreadsheets",
+          sortOrder: 6
+        },
+        {
+          id: 7,
+          name: "ระบบอนุมัติใบลาออนไลน์",
+          description: "ระบบสำหรับให้นักเรียนและผู้ปกครองยื่นใบลาป่วยหรือลากิจออนไลน์ส่งถึงครูประจำชั้น",
+          iconUrl: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=400&auto=format&fit=crop&q=60",
+          appUrl: "https://docs.google.com/spreadsheets",
+          sortOrder: 7
+        },
+        {
+          id: 8,
+          name: "ระบบประเมินครูผู้สอนออนไลน์",
+          description: "ระบบสำหรับนักเรียนร่วมประเมินประสิทธิภาพการจัดการเรียนการสอนของครูรายภาคเรียน",
+          iconUrl: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=400&auto=format&fit=crop&q=60",
+          appUrl: "https://docs.google.com/spreadsheets",
+          sortOrder: 8
+        },
+        {
+          id: 9,
+          name: "ระบบจัดการตารางเรียนตารางสอน",
+          description: "ระบบสืบค้นและแสดงตารางเรียนของนักเรียนและตารางสอนของคุณครูมหาชัยพิทยาคาร",
+          iconUrl: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=400&auto=format&fit=crop&q=60",
+          appUrl: "https://docs.google.com/spreadsheets",
+          sortOrder: 9
+        },
+        {
+          id: 10,
+          name: "ระบบสารสนเทศบุคลากร (HRIS)",
+          description: "ระบบบันทึกประวัติการทำงาน ผลงาน และการลาปฏิบัติราชการของคณะครูและบุคลากร",
+          iconUrl: "https://images.unsplash.com/photo-1521791136368-1a851900d14b?w=400&auto=format&fit=crop&q=60",
+          appUrl: "https://docs.google.com/spreadsheets",
+          sortOrder: 10
+        },
+        {
+          id: 11,
+          name: "ระบบจัดการพัสดุและสินทรัพย์",
+          description: "ระบบบันทึกการเบิกจ่ายพัสดุ การทำรายการครุภัณฑ์และการจัดซื้อจัดจ้างของหน่วยงาน",
+          iconUrl: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&auto=format&fit=crop&q=60",
+          appUrl: "https://docs.google.com/spreadsheets",
+          sortOrder: 11
+        },
+        {
+          id: 12,
+          name: "ระบบงานสภานักเรียน",
+          description: "ระบบประชาสัมพันธ์ กิจกรรม และช่องทางการเสนอความคิดเห็นของสภานักเรียน",
+          iconUrl: "https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?w=400&auto=format&fit=crop&q=60",
+          appUrl: "https://docs.google.com/spreadsheets",
+          sortOrder: 12
+        },
+        {
+          id: 13,
+          name: "ระบบจัดเก็บเอกสารวิชาการ (Edoc)",
+          description: "คลังเก็บแผนการจัดการเรียนรู้ วิจัยในชั้นเรียน และเอกสารงานวิชาการของโรงเรียน",
+          iconUrl: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400&auto=format&fit=crop&q=60",
+          appUrl: "https://docs.google.com/spreadsheets",
+          sortOrder: 13
+        },
+        {
+          id: 14,
+          name: "ระบบแนะแนวการศึกษาต่อและอาชีพ",
+          description: "ศูนย์ข้อมูลข่าวสาร ทุนการศึกษา การศึกษาต่อระดับอุดมศึกษา และแบบทดสอบอาชีพ",
+          iconUrl: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=400&auto=format&fit=crop&q=60",
+          appUrl: "https://docs.google.com/spreadsheets",
+          sortOrder: 14
+        },
+        {
+          id: 15,
+          name: "ระบบสารสนเทศสมาคมผู้ปกครอง",
+          description: "ช่องทางการติดต่อสื่อสาร การระดมทุน และกิจกรรมร่วมกันระหว่างโรงเรียนและผู้ปกครอง",
+          iconUrl: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=400&auto=format&fit=crop&q=60",
+          appUrl: "https://docs.google.com/spreadsheets",
+          sortOrder: 15
+        },
+        {
+          id: 16,
+          name: "ระบบติดตามและรายงานผลประกันคุณภาพ",
+          description: "ระบบบันทึกคะแนนและรายงานผลการดำเนินงานสำหรับคณะกรรมการประกันคุณภาพการศึกษา",
+          iconUrl: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=400&auto=format&fit=crop&q=60",
+          appUrl: "https://docs.google.com/spreadsheets",
+          sortOrder: 16
+        },
+        {
+          id: 17,
+          name: "ระบบสืบค้นเกียรติบัตรนักเรียน",
+          description: "ระบบดาวน์โหลดเกียรติบัตรอิเล็กทรอนิกส์จากการเข้าร่วมกิจกรรมทางวิชาการและแข่งขัน",
+          iconUrl: "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=400&auto=format&fit=crop&q=60",
+          appUrl: "https://docs.google.com/spreadsheets",
+          sortOrder: 17
+        },
+        {
+          id: 18,
+          name: "ระบบแจ้งซ่อมงานอาคารสถานที่",
+          description: "ช่องทางสำหรับแจ้งซ่อมบำรุง อุปกรณ์ ไฟฟ้า ประปา หรือคอมพิวเตอร์ที่ชำรุดเสียหาย",
+          iconUrl: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=400&auto=format&fit=crop&q=60",
+          appUrl: "https://docs.google.com/spreadsheets",
+          sortOrder: 18
+        }
+      ];
+
+      var totalItems = localMockApps.length;
+      var totalPages = Math.ceil(totalItems / pageSize);
+      var startIndex = (page - 1) * pageSize;
+      var endIndex = Math.min(startIndex + pageSize, totalItems);
+      var pagedApps = localMockApps.slice(startIndex, endIndex);
+
+      return {
+        apps: pagedApps,
+        totalItems: totalItems,
+        totalPages: totalPages,
+        currentPage: page,
+        sheetUrl: "https://docs.google.com/spreadsheets",
+        isMock: true
+      };
+    }
+  </script>
+</body>
+</html>

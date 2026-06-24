@@ -36,29 +36,29 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <!-- Brand / Left Side -->
-        <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('user')">
-          <div class="bg-white p-1 rounded-full shadow-md flex-shrink-0 w-10 h-10 flex items-center justify-center overflow-hidden">
+        <div class="flex items-center space-x-2 sm:space-x-3 cursor-pointer" onclick="switchView('user')">
+          <div class="bg-white p-1 rounded-full shadow-md flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center overflow-hidden">
             <img src="https://lh3.googleusercontent.com/d/19aXvolxpVK5GndtRSMFP6sEdl7oa5PzN" alt="School Logo" class="w-full h-full object-cover">
           </div>
           <div class="flex flex-col">
-            <span class="font-title font-semibold text-sm sm:text-base md:text-lg leading-tight tracking-wide">ระบบสารสนเทศโรงเรียนมหาชัยพิทยาคาร</span>
-            <span class="text-xs text-red-200 font-light font-title">| พัฒนาโดยครูก้องนที อุ่นเจริญ</span>
+            <span class="font-title font-semibold text-xs sm:text-sm md:text-base lg:text-lg leading-tight tracking-wide">ระบบสารสนเทศโรงเรียนมหาชัยพิทยาคาร</span>
+            <span class="text-[10px] text-red-200 font-light font-title hidden sm:inline">| พัฒนาโดยครูก้องนที อุ่นเจริญ</span>
           </div>
         </div>
         
         <!-- Navigation Buttons / Right Side -->
-        <div class="flex items-center space-x-2">
+        <div class="flex items-center space-x-1.5 sm:space-x-2">
           <!-- User View Buttons -->
-          <div id="logged-in-controls" class="hidden flex items-center space-x-2">
-            <button onclick="switchView('admin')" id="go-to-admin-btn" class="inline-flex items-center px-3.5 py-1.5 border border-transparent text-sm font-medium rounded-lg text-white bg-red-700 hover:bg-red-600 focus:outline-none transition duration-300 font-title">
+          <div id="logged-in-controls" class="hidden flex items-center space-x-1.5 sm:space-x-2">
+            <button onclick="switchView('admin')" id="go-to-admin-btn" class="inline-flex items-center px-2 py-1.5 sm:px-3.5 sm:py-1.5 border border-transparent text-xs sm:text-sm font-medium rounded-lg text-white bg-red-700 hover:bg-red-600 focus:outline-none transition duration-300 font-title">
               แผงควบคุม
             </button>
-            <button onclick="handleLogout()" class="inline-flex items-center px-3.5 py-1.5 border border-red-300 text-sm font-medium rounded-lg text-red-100 hover:bg-red-950 focus:outline-none transition duration-300 font-title">
+            <button onclick="handleLogout()" class="inline-flex items-center px-2 py-1.5 sm:px-3.5 sm:py-1.5 border border-red-300 text-xs sm:text-sm font-medium rounded-lg text-red-100 hover:bg-red-950 focus:outline-none transition duration-300 font-title">
               ออกจากระบบ
             </button>
           </div>
-          <button id="admin-login-btn" onclick="openLoginModal()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-red-900 bg-amber-400 hover:bg-amber-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 shadow-sm transition duration-300 font-title">
-            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <button id="admin-login-btn" onclick="openLoginModal()" class="inline-flex items-center px-2.5 py-1.5 sm:px-4 sm:py-2 border border-transparent text-xs sm:text-sm font-medium rounded-lg text-red-900 bg-amber-400 hover:bg-amber-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 shadow-sm transition duration-300 font-title">
+            <svg class="w-3.5 h-3.5 mr-1 sm:mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
             </svg>
             Admin Login
@@ -141,11 +141,14 @@
         </h2>
         <p class="mt-1 text-sm text-gray-500">จัดการ เพิ่ม แก้ไข หรือสลับปรับตำแหน่งการแสดงผลระบบงานสารสนเทศทั้งหมด</p>
       </div>
-      <div class="mt-3 sm:mt-0 flex space-x-2">
-        <button onclick="switchView('user')" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none transition duration-300 font-title">
+      <div class="mt-3 sm:mt-0 flex flex-wrap gap-2">
+        <a id="admin-btn" href="#" target="_blank" class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-300 text-xs sm:text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none transition duration-300 font-title">
+          เปิด Google Sheets
+        </a>
+        <button onclick="switchView('user')" class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-300 text-xs sm:text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none transition duration-300 font-title">
           ดูหน้ารวม (User View)
         </button>
-        <button onclick="openAppForm()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-red-800 hover:bg-red-900 shadow focus:outline-none transition duration-300 font-title">
+        <button onclick="openAppForm()" class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 border border-transparent text-xs sm:text-sm font-medium rounded-lg text-white bg-red-800 hover:bg-red-900 shadow focus:outline-none transition duration-300 font-title">
           + เพิ่มระบบงานใหม่
         </button>
       </div>
@@ -534,20 +537,24 @@
       }
 
       pagedApps.forEach(function(app) {
-        var card = document.createElement("div");
-        card.className = "group bg-white rounded-xl shadow-sm border border-gray-150 hover:shadow-lg hover:border-red-200 transform hover:-translate-y-1 transition duration-300 flex flex-col justify-between overflow-hidden h-[340px] cursor-pointer";
+        var url = app.appUrl ? app.appUrl.trim() : '#';
+        if (url !== '#' && !/^https?:\/\//i.test(url)) {
+          url = 'https://' + url;
+        }
+
+        var card = document.createElement("a");
+        card.className = "group bg-white rounded-xl shadow-sm border border-gray-150 hover:shadow-lg hover:border-red-200 transform hover:-translate-y-1 transition duration-300 flex flex-col justify-between overflow-hidden h-[340px] cursor-pointer block";
         
-        card.addEventListener("click", function() {
-          if (!app.appUrl || app.appUrl === '#') {
+        if (url !== '#') {
+          card.href = url;
+          card.target = "_blank";
+        } else {
+          card.href = "javascript:void(0);";
+          card.addEventListener("click", function(e) {
+            e.preventDefault();
             showToast("ไม่พบคอนฟิก URL สำหรับระบบนี้", "info");
-            return;
-          }
-          var url = app.appUrl.trim();
-          if (!/^https?:\/\//i.test(url)) {
-            url = 'https://' + url;
-          }
-          window.open(url, '_blank');
-        });
+          });
+        }
 
         card.innerHTML = `
           <!-- Expanded Card Image -->
